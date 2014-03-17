@@ -1,12 +1,12 @@
 # A PHP Scraper for NASA's Astronomy Picture of the Day
 
-## Disclaimer - I am not a PHP developer.  Some of this code is probably somewhat ghetto.  Also, scraping in general is kinda ghetto.  Use at your own risk.
+### Disclaimer - I am not a PHP developer.  Some of this code is probably somewhat ghetto.  Also, scraping in general is kinda ghetto.  Use at your own risk.
 
 [NASA's Astronomy Picture of the Day](http://apod.nasa.gov/apod/astropix.html) is great, but they have no API for it - just a super old-school webpage that they update once a day.  
 
 What this script does is scrape that page once a day, pull out the title and image URL and store them in the server memory (using APC).  Optionally, it can also save a thumbnail out for you to use.
 
-** Note: ** sometimes NASA posts a YouTube video instead of a photo.  If that's the case, it will use whatever is pre-existing in the cache (presumably yesterday's APOD), but it will not try to store a YouTube video.
+**Note:** sometimes NASA posts a YouTube video instead of a photo.  If that's the case, it will use whatever is pre-existing in the cache (presumably yesterday's APOD), but it will not try to store a YouTube video.
 
 ## Usage
 
