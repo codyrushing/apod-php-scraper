@@ -6,6 +6,6 @@
     	<h2><?php echo $apod_data["title"]; ?></h2>
     	<img src="<?php echo $apod_data["thumb"] ?>" />
 
-    	<p>Here is the full hosted image from NASA</p>
+    	<p>Here is the full hosted image from NASA or (vimeo and youtube)</p>
     	<img src="<?php echo $apod_data["hosted_image_path"] ?>" />
     <?php } ?>

@@ -46,13 +46,41 @@
 		   	if(!empty($center_tags)){
 		   		$second_link = $center_tags->item(0)->getElementsByTagName("a")->item(1);
 		   		if(!empty($second_link)){
-		   			$img_src = $second_link->getElementsByTagName("img")->item(0)->getAttribute("src");
+		   			// try to find an image first
+		   			$main_img = $second_link->getElementsByTagName("img")->item(0);
+		   			if(!empty($main_img)){
+		   				// found an image
+			   			$img_src = $main_img->getAttribute("src");
+		   			} 
+		   		} else {
+		   			$iframe = $center_tags->item(0)->getElementsByTagName("iframe")->item(0);
+		   			if(!empty($iframe)){
+		   				$iframe_src = $iframe->getAttribute("src");
+		   				if(!empty($iframe_src)){
+		   					// get last url segment
+		   					$video_url_pieces = explode("/", $iframe_src);
+		   					$raw_video_id = end($video_url_pieces);
+		   					// strip off query string
+		   					$raw_video_id_pieces = explode("?", $raw_video_id);
+							$video_id = $raw_video_id_pieces[0];
+		   					if(strpos($iframe_src,"youtube.com") !== false){
+			   					// youtube
+			   					$img_src = "https://img.youtube.com/vi/" . $video_id . "/mqdefault.jpg";
+		   					} elseif(strpos($iframe_src,"vimeo.com") !== false){
+			   					// vimeo
+								$vimeo_data = json_decode(file_get_contents("http://vimeo.com/api/v2/video/" . $video_id . ".json"), true);
+								$vimeo_data = $vimeo_data[0];
+								$img_src = $vimeo_data["thumbnail_medium"];
+								$img_title = $vimeo_data["title"];
+		   					}
+		   				}
+		   			}
 		   		}
 		   	}
 
 		   	// get title
 		   	$second_center = $center_tags->item(1);
-		   	if(!empty($second_center)){
+		   	if(!empty($second_center) && empty($img_title)){
 		   		$b_tag = $second_center->getElementsByTagName("b");
 		   		if(!empty($b_tag)){
 		   			$img_title = $b_tag->item(0)->nodeValue;
@@ -68,8 +96,6 @@
 			/* END SCRAPING NASA's DOM */
 
 
-
-
 			$hosted_image_path = "http://apod.nasa.gov/apod/" . $img_src;
 			$local_thumb_path = null;
 			if($save_thumbnail){
@@ -78,9 +104,11 @@
 
 				$fullsize_path = $apod_root . "full" . $ext;
 				$thumb_path = $apod_root . "thumb" . $ext;
+				// prepend "http://apod.nasa.gov/apod/" if we have a relative img_src
+				$original_img_url = (0 === strpos($img_src, "http")) ? $img_src : "http://apod.nasa.gov/apod/" . $img_src;
 				file_put_contents(
-					$fullsize_path, 
-					file_get_contents($hosted_image_path)
+					$fullsize_path,
+					file_get_contents($original_img_url)
 				);
 
 				$image->load($fullsize_path);
@@ -93,7 +121,7 @@
 			$new_apod_data = array(
 				"date" => $date_string,
 				"title" => $img_title,
-				"hosted_image_path" => $hosted_image_path,
+				"hosted_image_path" => $original_img_url,
 				"thumb" => $local_thumb_path
 			);
 
